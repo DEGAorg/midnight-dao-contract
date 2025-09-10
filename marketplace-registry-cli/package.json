@@ -1,0 +1,25 @@
+{
+  "name": "@midnight-ntwrk/marketplace-registry-cli",
+  "version": "0.1.0",
+  "license": "Apache-2.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "testnet-remote": "node --experimental-specifier-resolution=node --loader ts-node/esm src/testnet-remote.ts",
+    "testnet-remote-ps": "cp -r proof-server-testnet.yml ./dist/ && node --experimental-specifier-resolution=node --loader ts-node/esm src/testnet-remote-start-proof-server.ts",
+    "testnet-local": "node --experimental-specifier-resolution=node --loader ts-node/esm src/testnet-local.ts",
+    "standalone": "docker compose -f standalone.yml pull && node --experimental-specifier-resolution=node --loader ts-node/esm src/standalone.ts",
+    "test-setup": "node --experimental-specifier-resolution=node --loader ts-node/esm src/test-setup.ts",
+    "deploy-contract": "node --max-old-space-size=8192 --experimental-specifier-resolution=node --loader ts-node/esm src/deploy-contract.ts",
+    "test": "vitest run src/test/deploy-contract.test.ts --reporter=verbose",
+    "test-api": "docker compose -f standalone.yml pull && DEBUG='testcontainers' vitest run src/test/marketplace-registry-api.test.ts --reporter=verbose",
+    "build": "rm -rf dist && tsc --project tsconfig.build.json",
+    "lint": "eslint src",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "start-testnet-remote": "npm run build && npm run testnet-remote",
+    "start-testnet-remote-ps": "npm run build && npm run testnet-remote-ps"
+  },
+  "dependencies": {
+    "@midnight-ntwrk/marketplace-registry-contract": "*"
+  }
+}

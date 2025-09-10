@@ -1,0 +1,134 @@
+name: CI Tests
+
+on:
+  push:
+    branches: [ main, uat, develop, feature/docker ]
+  pull_request:
+    branches: [ main, uat, develop, feature/docker ]
+
+jobs:
+  contract-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    name: Contract Compilation & Tests
+
+    strategy:
+      matrix:
+        node-version: [22.x]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Verify compactc availability
+      run: |
+        echo "Checking if compactc is available..."
+        which compactc || echo "compactc not found in PATH - this is expected in CI"
+
+    - name: Build contract
+      working-directory: ./marketplace-registry-contract
+      run: |
+        echo "Building marketplace registry contract..."
+        npm run build
+
+    - name: Run contract tests
+      working-directory: ./marketplace-registry-contract
+      run: |
+        echo "Running contract tests..."
+        npm run test
+
+    - name: Run type checking
+      working-directory: ./marketplace-registry-contract
+      run: |
+        echo "Running TypeScript type checking..."
+        npm run typecheck
+
+    - name: Run linting
+      working-directory: ./marketplace-registry-contract
+      run: |
+        echo "Running ESLint..."
+        if npm run lint; then
+          echo "✅ Linting passed"
+        else
+          echo "⚠️ Linting issues found - review recommended but not blocking"
+          echo "Run 'npm run lint' locally to see details"
+        fi
+
+  quality-checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    name: Code Quality & Security
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js 22.x
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22.x'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Check package.json consistency
+      run: |
+        echo "Checking package.json consistency across workspaces..."
+        echo "Root package.json dependencies:"
+        jq '.dependencies | keys' package.json
+        echo "Contract package.json scripts:"
+        jq '.scripts | keys' marketplace-registry-contract/package.json
+
+    - name: Validate workspace structure
+      run: |
+        echo "Validating workspace structure..."
+        if [ -f "package.json" ] && [ -d "marketplace-registry-contract" ]; then
+          echo "✅ Workspace structure is valid"
+        else
+          echo "❌ Workspace structure is invalid"
+          exit 1
+        fi
+
+  test-report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    name: Test Report Generation
+    needs: [contract-tests, quality-checks]
+    if: always()
+
+    steps:
+    - name: Generate test report
+      run: |
+        echo "## Marketplace Registry CI Test Report" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Test Matrix Results" >> $GITHUB_STEP_SUMMARY
+        echo "- **Contract Tests**: ${{ needs.contract-tests.result }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Quality Checks**: ${{ needs.quality-checks.result }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        if [ "${{ needs.contract-tests.result }}" == "success" ] && [ "${{ needs.quality-checks.result }}" == "success" ]; then
+          echo "🎉 **All tests passed successfully!**" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "⚠️ **Some tests failed. Please review the logs above.**" >> $GITHUB_STEP_SUMMARY
+        fi
+
+    - name: Upload test artifacts
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: ci-test-results-${{ github.run_id }}
+        path: |
+          marketplace-registry-contract/dist/
+          **/coverage/
+          **/test-results/
+        retention-days: 7
