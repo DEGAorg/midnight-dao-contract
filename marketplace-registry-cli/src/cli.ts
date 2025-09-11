@@ -22,6 +22,7 @@ import { type StartedDockerComposeEnvironment, type DockerComposeEnvironment } f
 import { type MarketplaceRegistryProviders, type DeployedMarketplaceRegistryContract } from './common-types';
 import { type Config, StandaloneConfig } from './config';
 import * as api from './api';
+import { runDaoShieldedTokenCli, runFundingShieldTokenCli, runDaoVotingCli } from './dao';
 
 let logger: Logger;
 
@@ -36,6 +37,15 @@ You can do one of the following:
   1. Deploy a new marketplace registry contract
   2. Join an existing marketplace registry contract
   3. Exit
+Which would you like to do? `;
+
+const MAIN_MENU_QUESTION = `
+Main Menu - You can do one of the following:
+  1. Marketplace Registry
+  2. DAO Shielded Token
+  3. Funding Shield Token
+  4. DAO Voting
+  5. Exit
 Which would you like to do? `;
 
 const MAIN_LOOP_QUESTION = `
@@ -74,7 +84,7 @@ const deployOrJoin = async (providers: MarketplaceRegistryProviders, rli: Interf
   }
 };
 
-const mainLoop = async (providers: MarketplaceRegistryProviders, rli: Interface): Promise<void> => {
+const marketplaceRegistryLoop = async (providers: MarketplaceRegistryProviders, rli: Interface): Promise<void> => {
   const marketplaceRegistryContract = await deployOrJoin(providers, rli);
   if (marketplaceRegistryContract === null) {
     return;
@@ -123,6 +133,38 @@ const mainLoop = async (providers: MarketplaceRegistryProviders, rli: Interface)
         break;
       }
       case '6': {
+        logger.info('Exiting marketplace registry...');
+        return;
+      }
+      default: {
+        logger.error(`Invalid choice: ${choice}`);
+      }
+    }
+  }
+};
+
+const mainLoop = async (config: Config, wallet: Wallet & Resource, rli: Interface): Promise<void> => {
+  while (true) {
+    const choice = await rli.question(MAIN_MENU_QUESTION);
+    switch (choice) {
+      case '1': {
+        const providers = await api.configureProviders(wallet, config);
+        await marketplaceRegistryLoop(providers, rli);
+        break;
+      }
+      case '2': {
+        await runDaoShieldedTokenCli(config, logger, wallet);
+        break;
+      }
+      case '3': {
+        await runFundingShieldTokenCli(config, logger, wallet);
+        break;
+      }
+      case '4': {
+        await runDaoVotingCli(config, logger, wallet);
+        break;
+      }
+      case '5': {
         logger.info('Exiting...');
         return;
       }
@@ -196,8 +238,7 @@ export const run = async (config: Config, _logger: Logger, dockerEnv?: DockerCom
   const wallet = await buildWallet(config, rli);
   try {
     if (wallet !== null) {
-      const providers = await api.configureProviders(wallet, config);
-      await mainLoop(providers, rli);
+      await mainLoop(config, wallet, rli);
     }
   } catch (e) {
     if (e instanceof Error) {

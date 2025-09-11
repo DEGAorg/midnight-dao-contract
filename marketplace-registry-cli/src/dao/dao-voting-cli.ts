@@ -1,0 +1,226 @@
+// This file is part of midnightntwrk/marketplace-registry.
+// Copyright (C) 2025 Midnight Foundation
+// SPDX-License-Identifier: Apache-2.0
+// Licensed under the Apache License, Version 2.0 (the "License");
+// You may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+import { stdin as input, stdout as output } from 'node:process';
+import { createInterface, type Interface } from 'node:readline/promises';
+import { type Logger } from 'pino';
+import { type Config } from '../config';
+import { type Resource, type Wallet } from '@midnight-ntwrk/wallet';
+import { type DaoVotingProviders, type DeployedDaoVotingContract, type VoteType } from './common-types';
+import * as api from './dao-voting-api';
+import { createWalletAndMidnightProvider } from '../api';
+import { levelPrivateStateProvider } from '@midnight-ntwrk/midnight-js-level-private-state-provider';
+import { indexerPublicDataProvider } from '@midnight-ntwrk/midnight-js-indexer-public-data-provider';
+import { NodeZkConfigProvider } from '@midnight-ntwrk/midnight-js-node-zk-config-provider';
+import { httpClientProofProvider } from '@midnight-ntwrk/midnight-js-http-client-proof-provider';
+
+let logger: Logger;
+
+const DEPLOY_OR_JOIN_QUESTION = `
+DAO Voting - You can do one of the following:
+  1. Deploy a new DAO voting contract
+  2. Join an existing DAO voting contract
+  3. Exit
+Which would you like to do? `;
+
+const MAIN_LOOP_QUESTION = `
+DAO Voting - You can do one of the following:
+  1. Open election
+  2. Close election
+  3. Cast vote (requires DAO voting tokens)
+  4. Fund treasury (requires funding tokens)
+  5. Payout approved proposal
+  6. Display current contract state
+  7. Check election status
+  8. Exit
+Which would you like to do? `;
+
+const join = async (providers: DaoVotingProviders, rli: Interface): Promise<DeployedDaoVotingContract> => {
+  const contractAddress = await rli.question('What is the DAO voting contract address (in hex)? ');
+  return await api.joinDaoVotingContract(providers, contractAddress);
+};
+
+const deployOrJoin = async (providers: DaoVotingProviders, rli: Interface): Promise<DeployedDaoVotingContract | null> => {
+  while (true) {
+    const choice = await rli.question(DEPLOY_OR_JOIN_QUESTION);
+    switch (choice) {
+      case '1': {
+        // For DAO voting, we need the token address (usually the DAO shielded token contract)
+        const tokenAddress = await rli.question('Enter the token contract address (DAO shielded token address): ');
+        return await api.deployDaoVotingContract(providers, { tokenAddress });
+      }
+      case '2': {
+        return await join(providers, rli);
+      }
+      case '3': {
+        logger.info('Exiting DAO voting CLI...');
+        return null;
+      }
+      default: {
+        logger.error(`Invalid choice: ${choice}`);
+      }
+    }
+  }
+};
+
+const mainLoop = async (providers: DaoVotingProviders, rli: Interface): Promise<void> => {
+  const daoVotingContract = await deployOrJoin(providers, rli);
+  if (daoVotingContract === null) {
+    return;
+  }
+  
+  while (true) {
+    const choice = await rli.question(MAIN_LOOP_QUESTION);
+    switch (choice) {
+      case '1': {
+        const electionId = await rli.question('Enter election ID: ');
+        try {
+          await api.openElection(daoVotingContract, electionId);
+          logger.info(`Successfully opened election: ${electionId}`);
+        } catch (error) {
+          logger.error(`Failed to open election: ${error instanceof Error ? error.message : error}`);
+        }
+        break;
+      }
+      case '2': {
+        try {
+          await api.closeElection(daoVotingContract);
+          logger.info('Successfully closed election');
+        } catch (error) {
+          logger.error(`Failed to close election: ${error instanceof Error ? error.message : error}`);
+        }
+        break;
+      }
+      case '3': {
+        const voteChoice = await rli.question('Vote type (0=YES, 1=NO, 2=ABSENT): ');
+        const voteType = parseInt(voteChoice) as VoteType;
+        if (voteType < 0 || voteType > 2) {
+          logger.error('Invalid vote type. Must be 0, 1, or 2.');
+          break;
+        }
+        
+        // Note: In a real implementation, you'd need to provide the actual vote coin
+        // This is a simplified version for demonstration
+        logger.info('Note: Casting vote requires providing a valid DAO voting token coin.');
+        logger.info('This is a simplified CLI - in production, you would need to select the appropriate coin.');
+        try {
+          // await api.castVote(daoVotingContract, voteType, voteCoin);
+          logger.info(`Vote type ${voteType} selected (implementation requires coin selection)`);
+        } catch (error) {
+          logger.error(`Failed to cast vote: ${error instanceof Error ? error.message : error}`);
+        }
+        break;
+      }
+      case '4': {
+        // Note: In a real implementation, you'd need to provide the actual funding coin
+        logger.info('Note: Funding treasury requires providing funding tokens.');
+        logger.info('This is a simplified CLI - in production, you would need to select the appropriate coin.');
+        try {
+          // await api.fundTreasury(daoVotingContract, fundCoin);
+          logger.info('Treasury funding selected (implementation requires coin selection)');
+        } catch (error) {
+          logger.error(`Failed to fund treasury: ${error instanceof Error ? error.message : error}`);
+        }
+        break;
+      }
+      case '5': {
+        const toAddress = await rli.question('Enter recipient public key (hex): ');
+        const amountStr = await rli.question('Enter amount to payout: ');
+        const amount = BigInt(amountStr);
+        
+        try {
+          const toBytes = new Uint8Array(Buffer.from(toAddress.replace('0x', ''), 'hex'));
+          await api.payoutApprovedProposal(daoVotingContract, toBytes, amount);
+          logger.info(`Successfully paid out ${amount} to ${toAddress}`);
+        } catch (error) {
+          logger.error(`Failed to payout: ${error instanceof Error ? error.message : error}`);
+        }
+        break;
+      }
+      case '6': {
+        await api.displayDaoVotingState(providers, daoVotingContract);
+        break;
+      }
+      case '7': {
+        const contractAddress = daoVotingContract.deployTxData.public.contractAddress;
+        const status = await api.getElectionStatus(providers, contractAddress);
+        if (status) {
+          logger.info('Election Status:');
+          logger.info(`  Open: ${status.isOpen}`);
+          logger.info(`  Election ID: ${status.electionId}`);
+          logger.info(`  Yes Votes: ${status.yesVotes}`);
+          logger.info(`  No Votes: ${status.noVotes}`);
+          logger.info(`  Absent Votes: ${status.absentVotes}`);
+          logger.info(`  Total Votes: ${status.totalVotes}`);
+        } else {
+          logger.info('No election status found');
+        }
+        break;
+      }
+      case '8': {
+        logger.info('Exiting DAO voting CLI...');
+        return;
+      }
+      default: {
+        logger.error(`Invalid choice: ${choice}`);
+      }
+    }
+  }
+};
+
+export const runDaoVotingCli = async (
+  config: Config,
+  _logger: Logger,
+  wallet: Wallet & Resource,
+): Promise<void> => {
+  logger = _logger;
+  api.setLogger(_logger);
+  
+  const rli = createInterface({ input, output, terminal: true });
+  
+  try {
+    // Configure providers for DAO voting
+    const walletAndMidnightProvider = await createWalletAndMidnightProvider(wallet);
+    const providers: DaoVotingProviders = {
+      privateStateProvider: levelPrivateStateProvider<'daoVotingPrivateState'>({
+        privateStateStoreName: 'daoVotingPrivateState',
+      }),
+      publicDataProvider: indexerPublicDataProvider(config.indexer, config.indexerWS),
+      zkConfigProvider: new NodeZkConfigProvider<'open_election' | 'close_election' | 'cast_vote' | 'fund_treasury' | 'payout_approved_proposal'>({
+        zkConfigPath: './zk-config',
+      }),
+      proofProvider: httpClientProofProvider(config.proofServer),
+      walletProvider: walletAndMidnightProvider,
+      midnightProvider: walletAndMidnightProvider,
+    };
+    
+    await mainLoop(providers, rli);
+  } catch (e) {
+    if (e instanceof Error) {
+      logger.error(`Found error '${e.message}'`);
+      logger.info('Exiting...');
+      logger.debug(`${e.stack}`);
+    } else {
+      throw e;
+    }
+  } finally {
+    try {
+      rli.close();
+      rli.removeAllListeners();
+    } catch (e) {
+      logger.error(`Error closing readline interface: ${e}`);
+    }
+  }
+};

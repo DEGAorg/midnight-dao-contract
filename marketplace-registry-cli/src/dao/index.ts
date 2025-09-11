@@ -13,17 +13,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// This is how we type an empty object.
-export type MarketplaceRegistryPrivateState = {
-};
+export * from './common-types';
+export * from './dao-shielded-token-api';
+export * from './dao-shielded-token-cli';
+export * from './funding-shield-token-api';
+export * from './funding-shield-token-cli';
+export * from './dao-voting-api';
+export * from './dao-voting-cli';
 
-export type DaoShieldedTokenPrivateState = {
-};
-
-export type FundingShieldTokenPrivateState = {
-};
-
-export type DaoVotingPrivateState = {
-};
-
-export const witnesses = {};
+// Re-export specific functions to avoid conflicts
+export { runDaoShieldedTokenCli } from './dao-shielded-token-cli';
+export { runFundingShieldTokenCli } from './funding-shield-token-cli';
+export { runDaoVotingCli } from './dao-voting-cli';
