@@ -1,0 +1,112 @@
+pragma language_version 0.16;
+import CompactStandardLibrary;
+
+export ledger election_open: Boolean;
+export ledger election_id: Bytes<32>;
+export ledger yes_votes: Uint<64>;
+export ledger no_votes: Uint<64>;
+export ledger absent_votes: Uint<64>;
+export ledger has_voted: Map<Bytes<32>, Boolean>; // one vote per pk
+export ledger treasury: QualifiedCoinInfo;
+export ledger voting_temporay_coin: QualifiedCoinInfo;
+export sealed ledger treasury_coin_color: Bytes<32>; // identifier of the coins used for treasury
+export sealed ledger dao_vote_coin_color: Bytes<32>; // identifier of the coins used for dao vote
+export ledger total_votes: Uint<64>;
+
+constructor(token_address: ContractAddress) {
+  election_open = false;
+  treasury_coin_color = tokenType(pad(32, "dega_funding_token"), disclose(token_address));
+  dao_vote_coin_color = tokenType(pad(32, "dega_dao_vote"), disclose(token_address));
+}
+
+// ---------------------------
+// Admin: open/close election
+// ---------------------------
+
+// For workshop: keep adminless
+export circuit open_election(id: Bytes<32>): [] {
+  assert(!election_open, "already open");
+  election_id = disclose(id);
+  election_open = true;
+
+  // zero tallies
+  yes_votes = 0;
+  no_votes = 0;
+  absent_votes = 0;
+}
+
+export circuit close_election(): [] {
+  assert(election_open, "not open");
+  election_open = false;
+  total_votes = (yes_votes + no_votes + absent_votes) as Uint<64>;
+}
+
+// ---------------------------
+// Vote: prove coin possession by receive+return
+// ---------------------------
+
+export circuit cast_vote(
+  vote_type: Uint<2>, // 0=yes, 1=no, 2=absent
+  vote_coin: CoinInfo
+): [] {
+  assert(election_open, "election closed");
+  assert(vote_type <= 2, "invalid vote type");
+
+  const c = disclose(vote_coin);
+  receive(c);
+
+  // Validate asset & amount
+  assert(c.color == dao_vote_coin_color, "wrong asset");
+  assert(c.value == 500, "500 token required");
+  
+  const zswapPK = ownPublicKey();
+  const zswapPKBytes = zswapPK.bytes;
+  const zswapPKHash = persistentHash<Bytes<32>>(zswapPKBytes);
+  const disclosedZswapPKHash = disclose(zswapPKHash);
+
+  // 2) One vote per pk
+  assert(!has_voted.member(disclosedZswapPKHash), "User already voted");
+
+  // 3) Count vote - for now, we'll use a simple approach that requires disclosure
+  // In a real implementation, you'd want to use zero-knowledge proofs or commitments
+  // to maintain privacy while still allowing vote counting
+  const disclosed_vote_type = disclose(vote_type);
+  
+  if (disclosed_vote_type == 0) {
+    yes_votes = (yes_votes + 1) as Uint<64>;
+  } else if (disclosed_vote_type == 1) {
+    no_votes = (no_votes + 1) as Uint<64>;
+  } else {
+    absent_votes = (absent_votes + 1) as Uint<64>;
+  }
+  
+  has_voted.insert(disclosedZswapPKHash, true);
+
+  // 4) Return the voting token back to the voter
+  voting_temporay_coin.writeCoin(disclose(c), right<ZswapCoinPublicKey, ContractAddress>(kernel.self()));
+  send(voting_temporay_coin, left<ZswapCoinPublicKey, ContractAddress>(zswapPK), voting_temporay_coin.value);
+}
+
+// ---------------------------
+// Treasury: receive funding + payouts
+// ---------------------------
+
+export circuit fund_treasury(fund_coin: CoinInfo): [] {
+  // Receive funding token; keep it in the DAO.
+  const rc = disclose(fund_coin);
+  receive(rc);
+  assert(rc.color == treasury_coin_color, "wrong fund asset");
+  treasury.writeCoin(disclose(rc), right<ZswapCoinPublicKey, ContractAddress>(kernel.self()));
+}
+
+// Simple winner selection (admin/manual) → pay
+export circuit payout_approved_proposal(to: ZswapCoinPublicKey, amount: Uint<64>): [] {
+  assert(!election_open, "close first");
+  assert(treasury.value >= amount, "insufficient");
+  
+  // Verify that the proposal was approved by majority vote
+  assert(yes_votes > no_votes, "proposal not approved");
+
+  const disclosed_to = disclose(to);
+  send(treasury, left<ZswapCoinPublicKey, ContractAddress>(disclosed_to), treasury.value);
+}

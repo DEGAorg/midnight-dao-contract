@@ -1,0 +1,8 @@
+{
+  "version": 3,
+  "file": "index.cjs",
+  "sourceRoot": "../../../../",
+  "sources": ["src/dao-shielded-token.compact", "compiler/standard-library.compact"],
+  "names": [],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;EASA;;;;;;;;MAIA,AAAA,IAgBC;;;;;;;;;;;;;;;;;;;;OAAA;;;GAlBA;EAFD;;;;UAAY,WAAoB;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;IAJhC;;;;;;;;;uDAA+B;IAC/B;;;;;;;;;uDAA+B;IAC/B;;;;;;;;;uDAA4B;IAG1B;;;;;;;yGAAiB,WAAS;;uDAArB;;;;;;;GACN;ECsBD,AAAA,oCAA0B;kCACkB;;EAO5C,AAAA,6CAAgC;oEAAA;;;EAEhC,AAAA,8CAAiC;qEAAA;;;EACjC,AAAA,gDAAmC,SAAU;;uDAAV;uDAAU;;;EAC7C,AAAA,kDAAkC;yDAAA;;;EAClC,AAAA,oDAAoC;2DAAA;;;EA0EpC,AAAA;;;;;;;;EAEA,AAAA,iDAAiC,QAAgB;;wDAAhB;wDAAgB;;;;;;;EAGjD,AAAA,yCAAyB,cAAuB;;;sCACC,cAAY;;;EAE7D,AAAA;;gBACE;gBACA;gBACA;gBACA;;UAEA,kBAA+B;;;;0CAAwB;kEAAY;;;;;;;;;;;;4BAAuB;IAC1F;;;;;;;;;;;yGAAY;;;;;;yGAAY;;;;;;;;;;;;;0DACN,QAAM;UACxB;;yCAA0B;yCAAM;IAChC;;;;;;;;;;;yGAA2B;;;;;;WACpB;;EAET,AAAA,2CAA2B,SAAkB;;;;;;;iEAGzC;;;6FACmB;;EAyFvB,AAAA,8CACE,QACA;;;2CAIU;+CACI;;uCACJ;uCAAoB;uCAAuB;;;;EDrOvD,AAAA,QAgBC;UAdC,KAAO;IAAP;;;;;;;;;;2EAAA,KAAO;;;;sDAAA;UACP,UAA6C;;oEAAhB;;;;;;;;;;;uHAAO;oEAAE;;;;;;;;;;;uHAAK;UAC3C,QAA8B;UAC9B,mBAA8D;UAE9D,KAAG;;;;6CAAG;;;;;;;;;;;gGAAG;;qBAAG,QAAM;IAAlB;;;;;;;yGAAA,KAAG;;uDAAA;;;uBAED,mBAAiB;uBACjB,QAAM;uBACN,UAAQ;;;;;IAIV;;;;;;;yGAAQ,UAAQ;;uDAAX;;GACN;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;IAxBD;qCAAA;;;;;;;;;;;wFAA+B;KAAA;IAC/B;qCAAA;;;;;;;;;;;wFAA+B;KAAA;IAC/B;qCAAA;;;;;;;;;;;wFAA4B;KAAA;;;;;;;;;;;;;;"
+}

@@ -1,0 +1,15 @@
+{
+  "circuits": [
+    {
+      "name": "mint",
+      "pure": false,
+      "arguments": [
+      ],
+      "result-type": {
+        "type-name": "Tuple",
+        "types": [
+        ]
+      }
+    }
+  ]
+}

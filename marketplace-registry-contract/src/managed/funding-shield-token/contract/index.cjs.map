@@ -1,0 +1,8 @@
+{
+  "version": 3,
+  "file": "index.cjs",
+  "sourceRoot": "../../../../",
+  "sources": ["src/funding-shield-token.compact", "compiler/standard-library.compact"],
+  "names": [],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;EAUA;;;;;;;;MAKA,AAAA,IAiBC;;;;;;;;;;;;;;;;;;;;OAAA;;;GAnBA;EAHD;;;;UAAY,WAAoB;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;IALhC;;;;;;;;;uDAA+B;IAC/B;;;;;;;;;uDAA+B;IAC/B;;;;;;;;;uDAA4B;IAC5B;;;;;;;;;uDAA+B;IAG7B;;;;;;;yGAAiB,WAAS;;uDAArB;UACL,KAAK;;;;;IAAL;;;;;;;yGAAA,KAAK;;uDAAA;;;;;;;GACN;ECoBD,AAAA,oCAA0B;kCACkB;;EAO5C,AAAA,6CAAgC;oEAAA;;;EAEhC,AAAA,8CAAiC;qEAAA;;;EAAjC,AAAA,8CAAiC;qEAAA;;;EACjC,AAAA,gDAAmC,SAAU;;uDAAV;uDAAU;;;EAC7C,AAAA,kDAAkC;yDAAA;;;EAClC,AAAA,oDAAoC;2DAAA;;;EA0EpC,AAAA;;;;;;;;EAEA,AAAA,iDAAiC,QAAgB;;wDAAhB;wDAAgB;;;;;;;EAGjD,AAAA,yCAAyB,cAAuB;;;sCACC,cAAY;;;EAE7D,AAAA;;gBACE;gBACA;gBACA;gBACA;;UAEA,kBAA+B;;;;0CAAwB;kEAAY;;;;;;;;;;;;4BAAuB;IAC1F;;;;;;;;;;;yGAAY;;;;;;yGAAY;;;;;;;;;;;;;0DACN,QAAM;UACxB;;yCAA0B;yCAAM;IAChC;;;;;;;;;;;yGAA2B;;;;;;WACpB;;EAET,AAAA,2CAA2B,SAAkB;;;;;;;iEAGzC;;;6FACmB;;EAyFvB,AAAA,8CACE,QACA;;;2CAIU;+CACI;;uCACJ;uCAAoB;uCAAuB;;;;EDnOvD,AAAA,QAiBC;UAhBC,WAAwG;;;;;mEACjG;;;;;;;;;;;sHAAK;2CAAI,WAAS;;UACzB,KAAO;IAAP;;;;;;;;;;2EAAA,KAAO;;;;sDAAA;UACP,UAA6C;;oEAAhB;;;;;;;;;;;uHAAO;oEAAE;;;;;;;;;;;uHAAK;UAC3C,QAA8B;UAC9B,+BAA+E;UAE/E,KAAG;;;;6CAAG;;;;;;;;;;;gGAAG;;qBAAG,QAAM;IAAlB;;;;;;;yGAAA,KAAG;;uDAAA;;;uBAED,+BAA6B;uBAC7B,QAAM;uBACN,UAAQ;;;;;IAIV;;;;;;;yGAAQ,UAAQ;;uDAAX;;GACN;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;IA3BD;qCAAA;;;;;;;;;;;wFAA+B;KAAA;IAC/B;qCAAA;;;;;;;;;;;wFAA+B;KAAA;IAC/B;qCAAA;;;;;;;;;;;wFAA4B;KAAA;IAC5B;qCAAA;;;;;;;;;;;wFAA+B;KAAA;;;;;;;;;;;;;;"
+}

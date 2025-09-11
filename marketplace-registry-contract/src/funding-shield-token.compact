@@ -1,0 +1,33 @@
+pragma language_version >= 0.13.0;
+import CompactStandardLibrary;
+
+export { CoinInfo };
+
+export ledger counter: Counter;
+export ledger nonce: Bytes<32>;
+export ledger tvl: Uint<64>;
+export ledger admin: Bytes<32>;
+
+constructor(initNonce: Bytes<32>) {
+  nonce = disclose(initNonce);
+  admin = persistentHash<Vector<2, Bytes<32>>>([pad(32, "admin-minter"), ownPublicKey().bytes]);
+}
+
+export circuit mint(): [] {
+  const adminHash = persistentHash<Vector<2, Bytes<32>>>([pad(32, "admin-minter"), ownPublicKey().bytes]);
+  assert(admin == adminHash, "Only admin can mint");
+  counter.increment(1);
+  const newNonce = evolveNonce(counter, nonce);
+  const amount: Uint<64> = 1000;
+  const FUNDING_SHIELD_TOKEN_ASSET_ID: Bytes<32> = pad(32, "dega_funding_token");
+
+  tvl = tvl + amount as Uint<64>;
+  mintToken(
+    FUNDING_SHIELD_TOKEN_ASSET_ID,
+    amount,
+    newNonce,
+    left<ZswapCoinPublicKey, ContractAddress>(ownPublicKey())
+  );
+
+  nonce = newNonce;
+}

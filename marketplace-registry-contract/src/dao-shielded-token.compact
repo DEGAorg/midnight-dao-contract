@@ -1,0 +1,30 @@
+pragma language_version >= 0.13.0;
+import CompactStandardLibrary;
+
+export { CoinInfo };
+
+export ledger counter: Counter;
+export ledger nonce: Bytes<32>;
+export ledger tvl: Uint<64>;
+
+constructor(initNonce: Bytes<32>) {
+  nonce = disclose(initNonce);
+}
+
+export circuit mint(): [] {
+  // Demo mint: everyone can mint 1000 voting tokens to themselves.
+  counter.increment(1);
+  const newNonce = evolveNonce(counter, nonce);
+  const amount: Uint<64> = 1000;
+  const DAO_VOTE_ASSET_ID: Bytes<32> = pad(32, "dega_dao_vote");
+
+  tvl = tvl + amount as Uint<64>;
+  mintToken(
+    DAO_VOTE_ASSET_ID,
+    amount,
+    newNonce,
+    left<ZswapCoinPublicKey, ContractAddress>(ownPublicKey())
+  );
+
+  nonce = newNonce;
+}
