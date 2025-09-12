@@ -109,11 +109,10 @@ export const runDaoShieldedTokenCli = async (
   config: Config,
   _logger: Logger,
   wallet: Wallet & Resource,
+  rli: Interface,
 ): Promise<void> => {
   logger = _logger;
   api.setLogger(_logger);
-  
-  const rli = createInterface({ input, output, terminal: true });
   
   try {
     // Configure providers for DAO shielded token
@@ -137,13 +136,6 @@ export const runDaoShieldedTokenCli = async (
       logger.debug(`${e.stack}`);
     } else {
       throw e;
-    }
-  } finally {
-    try {
-      rli.close();
-      rli.removeAllListeners();
-    } catch (e) {
-      logger.error(`Error closing readline interface: ${e}`);
     }
   }
 };

@@ -153,15 +153,15 @@ const mainLoop = async (config: Config, wallet: Wallet & Resource, rli: Interfac
         break;
       }
       case '2': {
-        await runDaoShieldedTokenCli(config, logger, wallet);
+        await runDaoShieldedTokenCli(config, logger, wallet, rli);
         break;
       }
       case '3': {
-        await runFundingShieldTokenCli(config, logger, wallet);
+        await runFundingShieldTokenCli(config, logger, wallet, rli);
         break;
       }
       case '4': {
-        await runDaoVotingCli(config, logger, wallet);
+        await runDaoVotingCli(config, logger, wallet, rli);
         break;
       }
       case '5': {

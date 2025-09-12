@@ -112,11 +112,10 @@ export const runFundingShieldTokenCli = async (
   config: Config,
   _logger: Logger,
   wallet: Wallet & Resource,
+  rli: Interface,
 ): Promise<void> => {
   logger = _logger;
   api.setLogger(_logger);
-  
-  const rli = createInterface({ input, output, terminal: true });
   
   try {
     // Configure providers for funding shield token
@@ -126,7 +125,7 @@ export const runFundingShieldTokenCli = async (
         privateStateStoreName: 'fundingShieldTokenPrivateState',
       }),
       publicDataProvider: indexerPublicDataProvider(config.indexer, config.indexerWS),
-      zkConfigProvider: new NodeZkConfigProvider<'mint'>(path.resolve(path.dirname(new URL(import.meta.url).pathname), '..', '..', 'marketplace-registry-contract', 'src', 'managed', 'funding-shield-token')),
+      zkConfigProvider: new NodeZkConfigProvider<'mint'>(path.resolve(path.resolve(new URL(import.meta.url).pathname, '..'), '..', '..', '..', 'marketplace-registry-contract', 'src', 'managed', 'funding-shield-token')),
       proofProvider: httpClientProofProvider(config.proofServer),
       walletProvider: walletAndMidnightProvider,
       midnightProvider: walletAndMidnightProvider,
@@ -140,13 +139,6 @@ export const runFundingShieldTokenCli = async (
       logger.debug(`${e.stack}`);
     } else {
       throw e;
-    }
-  } finally {
-    try {
-      rli.close();
-      rli.removeAllListeners();
-    } catch (e) {
-      logger.error(`Error closing readline interface: ${e}`);
     }
   }
 };
