@@ -360,10 +360,11 @@ class Contract {
     };
   }
   initialState(...args_0) {
-    if (args_0.length !== 2)
-      throw new __compactRuntime.CompactError(`Contract state constructor: expected 2 arguments (as invoked from Typescript), received ${args_0.length}`);
+    if (args_0.length !== 3)
+      throw new __compactRuntime.CompactError(`Contract state constructor: expected 3 arguments (as invoked from Typescript), received ${args_0.length}`);
     const constructorContext_0 = args_0[0];
-    const token_address_0 = args_0[1];
+    const funding_token_address_0 = args_0[1];
+    const dao_vote_token_address_0 = args_0[2];
     if (typeof(constructorContext_0) !== 'object') {
       throw new __compactRuntime.CompactError(`Contract state constructor: expected 'constructorContext' in argument 1 (as invoked from Typescript) to be an object`);
     }
@@ -373,12 +374,18 @@ class Contract {
     if (typeof(constructorContext_0.initialZswapLocalState) !== 'object') {
       throw new __compactRuntime.CompactError(`Contract state constructor: expected 'initialZswapLocalState' in argument 1 (as invoked from Typescript) to be an object`);
     }
-    if (!(typeof(token_address_0) === 'object' && token_address_0.bytes.buffer instanceof ArrayBuffer && token_address_0.bytes.BYTES_PER_ELEMENT === 1 && token_address_0.bytes.length === 32))
+    if (!(typeof(funding_token_address_0) === 'object' && funding_token_address_0.bytes.buffer instanceof ArrayBuffer && funding_token_address_0.bytes.BYTES_PER_ELEMENT === 1 && funding_token_address_0.bytes.length === 32))
       __compactRuntime.type_error('Contract state constructor',
                                   'argument 1 (argument 2 as invoked from Typescript)',
                                   'dao-voting.compact line 16 char 1',
                                   'struct ContractAddress<bytes: Bytes<32>>',
-                                  token_address_0)
+                                  funding_token_address_0)
+    if (!(typeof(dao_vote_token_address_0) === 'object' && dao_vote_token_address_0.bytes.buffer instanceof ArrayBuffer && dao_vote_token_address_0.bytes.BYTES_PER_ELEMENT === 1 && dao_vote_token_address_0.bytes.length === 32))
+      __compactRuntime.type_error('Contract state constructor',
+                                  'argument 2 (argument 3 as invoked from Typescript)',
+                                  'dao-voting.compact line 16 char 1',
+                                  'struct ContractAddress<bytes: Bytes<32>>',
+                                  dao_vote_token_address_0)
     const state_0 = new __compactRuntime.ContractState();
     let stateValue_0 = __compactRuntime.StateValue.newArray();
     stateValue_0 = stateValue_0.arrayPush(__compactRuntime.StateValue.newNull());
@@ -534,7 +541,7 @@ class Contract {
     const tmp_0 = this.#_tokenType_0(context,
                                      partialProofData,
                                      new Uint8Array([100, 101, 103, 97, 95, 102, 117, 110, 100, 105, 110, 103, 95, 116, 111, 107, 101, 110, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
-                                     token_address_0);
+                                     funding_token_address_0);
     Contract._query(context,
                     partialProofData,
                     [
@@ -548,7 +555,7 @@ class Contract {
     const tmp_1 = this.#_tokenType_0(context,
                                      partialProofData,
                                      new Uint8Array([100, 101, 103, 97, 95, 100, 97, 111, 95, 118, 111, 116, 101, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
-                                     token_address_0);
+                                     dao_vote_token_address_0);
     Contract._query(context,
                     partialProofData,
                     [

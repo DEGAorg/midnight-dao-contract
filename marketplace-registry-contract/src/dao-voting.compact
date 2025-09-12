@@ -13,10 +13,10 @@ export sealed ledger treasury_coin_color: Bytes<32>; // identifier of the coins 
 export sealed ledger dao_vote_coin_color: Bytes<32>; // identifier of the coins used for dao vote
 export ledger total_votes: Uint<64>;
 
-constructor(token_address: ContractAddress) {
+constructor(funding_token_address: ContractAddress, dao_vote_token_address: ContractAddress) {
   election_open = false;
-  treasury_coin_color = tokenType(pad(32, "dega_funding_token"), disclose(token_address));
-  dao_vote_coin_color = tokenType(pad(32, "dega_dao_vote"), disclose(token_address));
+  treasury_coin_color = tokenType(pad(32, "dega_funding_token"), disclose(funding_token_address));
+  dao_vote_coin_color = tokenType(pad(32, "dega_dao_vote"), disclose(dao_vote_token_address));
 }
 
 // ---------------------------

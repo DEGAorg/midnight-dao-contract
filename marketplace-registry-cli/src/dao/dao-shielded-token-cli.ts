@@ -41,7 +41,9 @@ const MAIN_LOOP_QUESTION = `
 DAO Shielded Token - You can do one of the following:
   1. Mint DAO voting tokens (1000 tokens)
   2. Display current contract state
-  3. Exit
+  3. Log DAO token balance
+  4. Send DAO tokens
+  5. Exit
 Which would you like to do? `;
 
 const join = async (providers: DaoShieldedTokenProviders, rli: Interface): Promise<DeployedDaoShieldedTokenContract> => {
@@ -72,7 +74,7 @@ const deployOrJoin = async (providers: DaoShieldedTokenProviders, rli: Interface
   }
 };
 
-const mainLoop = async (providers: DaoShieldedTokenProviders, rli: Interface): Promise<void> => {
+const mainLoop = async (providers: DaoShieldedTokenProviders, wallet: Wallet & Resource, rli: Interface): Promise<void> => {
   const daoShieldedTokenContract = await deployOrJoin(providers, rli);
   if (daoShieldedTokenContract === null) {
     return;
@@ -95,6 +97,41 @@ const mainLoop = async (providers: DaoShieldedTokenProviders, rli: Interface): P
         break;
       }
       case '3': {
+        try {
+          await api.logDaoTokenBalance(wallet, daoShieldedTokenContract);
+        } catch (error) {
+          logger.error(`Failed to log DAO token balance: ${error instanceof Error ? error.message : error}`);
+        }
+        break;
+      }
+      case '4': {
+        try {
+          // Get destination address from user
+          const toAddress = await rli.question('Enter the destination wallet address (in hex): ');
+          if (!toAddress.trim()) {
+            logger.error('Destination address cannot be empty');
+            break;
+          }
+          
+          // Get amount from user
+          const amountStr = await rli.question('Enter the amount of DAO tokens to send: ');
+          const amount = BigInt(amountStr);
+          if (amount <= 0n) {
+            logger.error('Amount must be greater than 0');
+            break;
+          }
+          
+          // Send the tokens
+          const txId = await api.sendDaoToken(wallet, daoShieldedTokenContract, toAddress.trim(), amount);
+          logger.info(`Successfully sent ${amount} DAO tokens to ${toAddress.trim()}`);
+          logger.info(`Transaction ID: ${txId}`);
+          
+        } catch (error) {
+          logger.error(`Failed to send DAO tokens: ${error instanceof Error ? error.message : error}`);
+        }
+        break;
+      }
+      case '5': {
         logger.info('Exiting DAO shielded token CLI...');
         return;
       }
@@ -128,7 +165,7 @@ export const runDaoShieldedTokenCli = async (
       midnightProvider: walletAndMidnightProvider,
     };
     
-    await mainLoop(providers, rli);
+    await mainLoop(providers, wallet, rli);
   } catch (e) {
     if (e instanceof Error) {
       logger.error(`Found error '${e.message}'`);

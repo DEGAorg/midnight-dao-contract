@@ -248,6 +248,21 @@ export const waitForSyncProgress = async (wallet: Wallet) =>
     ),
   );
 
+// Helper function to properly serialize balances for logging
+const logBalances = (balances: Record<string, bigint>) => {
+  const serializedBalances: Record<string, string> = {};
+  for (const [token, balance] of Object.entries(balances)) {
+    serializedBalances[token] = balance.toString();
+  }
+  return JSON.stringify(serializedBalances, null, 2);
+};
+
+// Export function to log wallet balances for external use
+export const logWalletBalances = async (wallet: Wallet): Promise<void> => {
+  const state = await Rx.firstValueFrom(wallet.state());
+  logger.info(`Current wallet balances:\n${logBalances(state.balances)}`);
+};
+
 export const waitForFunds = (wallet: Wallet) =>
   Rx.firstValueFrom(
     wallet.state().pipe(
@@ -262,6 +277,10 @@ export const waitForFunds = (wallet: Wallet) =>
       Rx.filter((state) => {
         // Let's allow progress only if wallet is synced
         return state.syncProgress?.synced === true;
+      }),
+      // add a log to display all balances
+      Rx.tap((s) => {
+        logger.info(`All balances:\n${logBalances(s.balances)}`);
       }),
       Rx.map((s) => s.balances[nativeToken()] ?? 0n),
       Rx.filter((balance) => balance > 0n),
@@ -379,7 +398,8 @@ export const buildWalletAndWaitForSync = async (
   logger.info(`Your coin public key is: ${hexCoinPublicKey}`);
   logger.info(`Your encryption public key is: ${state.encryptionPublicKey}`);
   const balance = state.balances[nativeToken()];
-  logger.info(`Your wallet balance is: ${balance}`);
+  logger.info(`Your native token balance is: ${balance}`);
+  logger.info(`All wallet balances:\n${logBalances(state.balances)}`);
   logger.info(`Wallet is fully synced and ready for transactions`);
   return wallet;
 };
@@ -499,11 +519,15 @@ export const buildWalletAndWaitForFunds = async (
   logger.info(`Your encryption public key is: ${state.encryptionPublicKey}`);
   let balance = state.balances[nativeToken()];
   if (balance === undefined || balance === 0n) {
-    logger.info(`Your wallet balance is: 0`);
+    logger.info(`Your native token balance is: 0`);
+    logger.info(`All wallet balances:\n${logBalances(state.balances)}`);
     logger.info(`Waiting to receive tokens...`);
     balance = await waitForFunds(wallet);
   }
-  logger.info(`Your wallet balance is: ${balance}`);
+  logger.info(`Your native token balance is: ${balance}`);
+  // Log final balances after receiving funds
+  const finalState = await Rx.firstValueFrom(wallet.state());
+  logger.info(`All wallet balances:\n${logBalances(finalState.balances)}`);
   return wallet;
 };
 

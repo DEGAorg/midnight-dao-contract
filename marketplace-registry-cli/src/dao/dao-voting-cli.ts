@@ -59,9 +59,10 @@ const deployOrJoin = async (providers: DaoVotingProviders, rli: Interface): Prom
     const choice = await rli.question(DEPLOY_OR_JOIN_QUESTION);
     switch (choice) {
       case '1': {
-        // For DAO voting, we need the token address (usually the DAO shielded token contract)
-        const tokenAddress = await rli.question('Enter the token contract address (DAO shielded token address): ');
-        return await api.deployDaoVotingContract(providers, { tokenAddress });
+        // For DAO voting, we need both token contract addresses
+        const fundingTokenAddress = await rli.question('Enter the funding token contract address: ');
+        const daoVoteTokenAddress = await rli.question('Enter the DAO vote token contract address: ');
+        return await api.deployDaoVotingContract(providers, {}, fundingTokenAddress, daoVoteTokenAddress);
       }
       case '2': {
         return await join(providers, rli);

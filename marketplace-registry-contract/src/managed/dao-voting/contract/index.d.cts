@@ -76,7 +76,8 @@ export declare class Contract<T, W extends Witnesses<T> = Witnesses<T>> {
   impureCircuits: ImpureCircuits<T>;
   constructor(witnesses: W);
   initialState(context: __compactRuntime.ConstructorContext<T>,
-               token_address_0: { bytes: Uint8Array }): __compactRuntime.ConstructorResult<T>;
+               funding_token_address_0: { bytes: Uint8Array },
+               dao_vote_token_address_0: { bytes: Uint8Array }): __compactRuntime.ConstructorResult<T>;
 }
 
 export declare function ledger(state: __compactRuntime.StateValue): Ledger;

@@ -13,12 +13,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { type ContractAddress } from '@midnight-ntwrk/compact-runtime';
+import { type ContractAddress, tokenType } from '@midnight-ntwrk/compact-runtime';
 import { DaoShieldedToken, type DaoShieldedTokenPrivateState, witnesses } from '@midnight-ntwrk/marketplace-registry-contract';
 import { type FinalizedTxData } from '@midnight-ntwrk/midnight-js-types';
 import { deployContract, findDeployedContract } from '@midnight-ntwrk/midnight-js-contracts';
 import { type Logger } from 'pino';
 import { assertIsContractAddress } from '@midnight-ntwrk/midnight-js-utils';
+import { type Wallet } from '@midnight-ntwrk/wallet-api';
+import * as Rx from 'rxjs';
 import {
   type DaoShieldedTokenProviders,
   type DeployedDaoShieldedTokenContract,
@@ -26,6 +28,15 @@ import {
 } from './common-types';
 
 let logger: Logger;
+
+// pad(n, s): UTF-8 bytes of s followed by 0x00 up to length n
+function padBytes(n: number, s: string): Uint8Array {
+  const bytes = new TextEncoder().encode(s);
+  if (bytes.length > n) throw new Error('String too long for pad length');
+  const out = new Uint8Array(n);
+  out.set(bytes);
+  return out;
+}
 
 export const daoShieldedTokenContractInstance: DaoShieldedToken.Contract<DaoShieldedTokenPrivateState> = new DaoShieldedToken.Contract(witnesses);
 
@@ -95,6 +106,95 @@ export const displayDaoShieldedTokenState = async (
     logger.info(`  TVL (Total Value Locked): ${state.tvl}`);
   }
   return { contractAddress, state };
+};
+
+// Helper function to generate token type identifier using the proper tokenType function
+const generateTokenType = (contractAddress: string): string => {
+  // Build a 32-byte domain separator for DAO tokens
+  const domainSep = padBytes(32, 'dega_dao_vote');
+  
+  // Use the built-in tokenType function to derive the TokenType
+  const tokenTypeHex: string = tokenType(domainSep, contractAddress);
+  
+  return tokenTypeHex;
+};
+
+// Helper function to properly serialize balances for logging
+const logBalances = (balances: Record<string, bigint>) => {
+  const serializedBalances: Record<string, string> = {};
+  for (const [token, balance] of Object.entries(balances)) {
+    serializedBalances[token] = balance.toString();
+  }
+  return JSON.stringify(serializedBalances, null, 2);
+};
+
+export const logDaoTokenBalance = async (
+  wallet: Wallet,
+  daoShieldedTokenContract: DeployedDaoShieldedTokenContract,
+): Promise<void> => {
+  try {
+    const contractAddress = daoShieldedTokenContract.deployTxData.public.contractAddress;
+    const state = await Rx.firstValueFrom(wallet.state());
+    
+    // Generate the token type for the DAO token using the proper tokenType function
+    const tokenTypeHex = generateTokenType(contractAddress);
+    
+    logger.info(`DAO Token Type: ${tokenTypeHex}`);
+    
+    // Check if the wallet has this token
+    const daoTokenBalance = state.balances[tokenTypeHex];
+    
+    if (daoTokenBalance !== undefined) {
+      logger.info(`DAO Token Balance: ${daoTokenBalance}`);
+    } else {
+      logger.info('DAO Token Balance: 0 (not found in wallet)');
+    }
+    
+    // Also log all balances for context
+    logger.info(`All wallet balances:\n${logBalances(state.balances)}`);
+    
+  } catch (error) {
+    logger.error(`Error logging DAO token balance: ${error instanceof Error ? error.message : error}`);
+  }
+};
+
+export const sendDaoToken = async (
+  wallet: Wallet,
+  daoShieldedTokenContract: DeployedDaoShieldedTokenContract,
+  toAddress: string,
+  amount: bigint,
+): Promise<string> => {
+  try {
+    const contractAddress = daoShieldedTokenContract.deployTxData.public.contractAddress;
+    
+    // Generate the token type for the DAO token using the proper tokenType function
+    const tokenTypeHex = generateTokenType(contractAddress);
+    
+    logger.info(`Sending ${amount} DAO tokens to address: ${toAddress}`);
+    logger.info(`DAO Token Type: ${tokenTypeHex}`);
+    
+    // Create the transfer transaction
+    const transferRecipe = await wallet.transferTransaction([
+      {
+        amount: amount,
+        type: tokenTypeHex,
+        receiverAddress: toAddress
+      }
+    ]);
+    
+    // Prove the transaction
+    const provenTransaction = await wallet.proveTransaction(transferRecipe);
+    
+    // Submit the proven transaction
+    const txId = await wallet.submitTransaction(provenTransaction);
+    
+    logger.info(`DAO token transfer transaction submitted with ID: ${txId}`);
+    return txId;
+    
+  } catch (error) {
+    logger.error(`Failed to send DAO tokens: ${error instanceof Error ? error.message : error}`);
+    throw error;
+  }
 };
 
 export function setLogger(_logger: Logger) {

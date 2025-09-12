@@ -61,13 +61,18 @@ export const joinDaoVotingContract = async (
 export const deployDaoVotingContract = async (
   providers: DaoVotingProviders,
   privateState: DaoVotingPrivateState,
+  fundingTokenAddress: string,
+  daoVoteTokenAddress: string,
 ): Promise<DeployedDaoVotingContract> => {
   logger.info('Deploying DAO voting contract...');
   const daoVotingContract = await deployContract(providers, {
     contract: daoVotingContractInstance,
     privateStateId: 'daoVotingPrivateState',
     initialPrivateState: privateState,
-    args: [{ bytes: new Uint8Array(32).fill(0) }], // tokenAddress
+    args: [
+      { bytes: new Uint8Array(Buffer.from(fundingTokenAddress.replace('0x', ''), 'hex')) }, // fundingTokenAddress
+      { bytes: new Uint8Array(Buffer.from(daoVoteTokenAddress.replace('0x', ''), 'hex')) }, // daoVoteTokenAddress
+    ],
   });
   logger.info(`Deployed DAO voting contract at address: ${daoVotingContract.deployTxData.public.contractAddress}`);
   return daoVotingContract;

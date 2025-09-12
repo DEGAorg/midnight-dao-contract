@@ -56,11 +56,11 @@ The DAO CLI is integrated into the main CLI. When you run the main CLI, you'll s
 
 ## Contract Dependencies
 
-The DAO voting contract requires the token contract address during deployment. Typically, you would:
+The DAO voting contract requires both token contract addresses during deployment. Typically, you would:
 
 1. Deploy the DAO shielded token contract
 2. Deploy the funding shield token contract
-3. Deploy the DAO voting contract with the DAO shielded token address
+3. Deploy the DAO voting contract with both the funding token address and the DAO vote token address
 
 ## Notes
 
