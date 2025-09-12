@@ -16,8 +16,10 @@
 import { stdin as input, stdout as output } from 'node:process';
 import { createInterface, type Interface } from 'node:readline/promises';
 import { type Logger } from 'pino';
+import path from 'node:path';
 import { type Config } from '../config';
-import { type Resource, type Wallet } from '@midnight-ntwrk/wallet';
+import { type Resource } from '@midnight-ntwrk/wallet';
+import { type Wallet } from '@midnight-ntwrk/wallet-api';
 import { type DaoVotingProviders, type DeployedDaoVotingContract, type VoteType } from './common-types';
 import * as api from './dao-voting-api';
 import { createWalletAndMidnightProvider } from '../api';
@@ -198,9 +200,7 @@ export const runDaoVotingCli = async (
         privateStateStoreName: 'daoVotingPrivateState',
       }),
       publicDataProvider: indexerPublicDataProvider(config.indexer, config.indexerWS),
-      zkConfigProvider: new NodeZkConfigProvider<'open_election' | 'close_election' | 'cast_vote' | 'fund_treasury' | 'payout_approved_proposal'>({
-        zkConfigPath: './zk-config',
-      }),
+      zkConfigProvider: new NodeZkConfigProvider<'open_election' | 'close_election' | 'cast_vote' | 'fund_treasury' | 'payout_approved_proposal'>(path.resolve(path.dirname(new URL(import.meta.url).pathname), '..', '..', 'marketplace-registry-contract', 'src', 'managed', 'dao-voting')),
       proofProvider: httpClientProofProvider(config.proofServer),
       walletProvider: walletAndMidnightProvider,
       midnightProvider: walletAndMidnightProvider,

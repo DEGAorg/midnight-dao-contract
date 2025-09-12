@@ -16,8 +16,10 @@
 import { stdin as input, stdout as output } from 'node:process';
 import { createInterface, type Interface } from 'node:readline/promises';
 import { type Logger } from 'pino';
+import path from 'node:path';
 import { type Config } from '../config';
-import { type Resource, type Wallet } from '@midnight-ntwrk/wallet';
+import { type Resource } from '@midnight-ntwrk/wallet';
+import { type Wallet } from '@midnight-ntwrk/wallet-api';
 import { type DaoShieldedTokenProviders, type DeployedDaoShieldedTokenContract } from './common-types';
 import * as api from './dao-shielded-token-api';
 import { randomBytes, createWalletAndMidnightProvider } from '../api';
@@ -121,9 +123,7 @@ export const runDaoShieldedTokenCli = async (
         privateStateStoreName: 'daoShieldedTokenPrivateState',
       }),
       publicDataProvider: indexerPublicDataProvider(config.indexer, config.indexerWS),
-      zkConfigProvider: new NodeZkConfigProvider<'mint'>({
-        zkConfigPath: './zk-config',
-      }),
+      zkConfigProvider: new NodeZkConfigProvider<'mint'>(path.resolve(path.resolve(new URL(import.meta.url).pathname, '..'), '..', '..', '..', 'marketplace-registry-contract', 'src', 'managed', 'dao-shielded-token')),
       proofProvider: httpClientProofProvider(config.proofServer),
       walletProvider: walletAndMidnightProvider,
       midnightProvider: walletAndMidnightProvider,

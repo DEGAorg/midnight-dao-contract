@@ -34,7 +34,7 @@ export const daoVotingContractInstance: DaoVoting.Contract<DaoVotingPrivateState
 export const getDaoVotingLedgerState = async (
   providers: DaoVotingProviders,
   contractAddress: ContractAddress,
-): Promise<DaoVotingState | null> => {
+): Promise<DaoVoting.Ledger | null> => {
   assertIsContractAddress(contractAddress);
   logger.info('Checking DAO voting contract ledger state...');
   const state = await providers.publicDataProvider
@@ -67,6 +67,7 @@ export const deployDaoVotingContract = async (
     contract: daoVotingContractInstance,
     privateStateId: 'daoVotingPrivateState',
     initialPrivateState: privateState,
+    args: [{ bytes: new Uint8Array(32).fill(0) }], // tokenAddress
   });
   logger.info(`Deployed DAO voting contract at address: ${daoVotingContract.deployTxData.public.contractAddress}`);
   return daoVotingContract;
@@ -99,7 +100,7 @@ export const castVote = async (
 ): Promise<FinalizedTxData> => {
   const voteTypeNames = ['YES', 'NO', 'ABSENT'];
   logger.info(`Casting ${voteTypeNames[voteType]} vote...`);
-  const finalizedTxData = await daoVotingContract.callTx.cast_vote(voteType, voteCoin);
+  const finalizedTxData = await daoVotingContract.callTx.cast_vote(BigInt(voteType), voteCoin);
   logger.info(`Transaction ${finalizedTxData.public.txId} added in block ${finalizedTxData.public.blockHeight}`);
   return finalizedTxData.public;
 };
@@ -120,7 +121,7 @@ export const payoutApprovedProposal = async (
   amount: bigint,
 ): Promise<FinalizedTxData> => {
   logger.info(`Paying out approved proposal: ${amount} to ${Buffer.from(to).toString('hex')}`);
-  const finalizedTxData = await daoVotingContract.callTx.payout_approved_proposal(to, amount);
+  const finalizedTxData = await daoVotingContract.callTx.payout_approved_proposal({ bytes: to }, amount);
   logger.info(`Transaction ${finalizedTxData.public.txId} added in block ${finalizedTxData.public.blockHeight}`);
   return finalizedTxData.public;
 };
@@ -147,7 +148,7 @@ export const getElectionStatus = async (
 export const displayDaoVotingState = async (
   providers: DaoVotingProviders,
   daoVotingContract: DeployedDaoVotingContract,
-): Promise<{ state: DaoVotingState | null; contractAddress: string }> => {
+): Promise<{ state: DaoVoting.Ledger | null; contractAddress: string }> => {
   const contractAddress = daoVotingContract.deployTxData.public.contractAddress;
   const state = await getDaoVotingLedgerState(providers, contractAddress);
   if (state === null) {

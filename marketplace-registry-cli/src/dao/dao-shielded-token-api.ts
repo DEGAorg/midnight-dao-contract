@@ -65,6 +65,7 @@ export const deployDaoShieldedTokenContract = async (
     contract: daoShieldedTokenContractInstance,
     privateStateId: 'daoShieldedTokenPrivateState',
     initialPrivateState: privateState,
+    args: [new Uint8Array(32).fill(0)], // initNonce
   });
   logger.info(`Deployed DAO shielded token contract at address: ${daoShieldedTokenContract.deployTxData.public.contractAddress}`);
   return daoShieldedTokenContract;

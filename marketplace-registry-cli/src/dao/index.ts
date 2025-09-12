@@ -14,14 +14,35 @@
 // limitations under the License.
 
 export * from './common-types';
-export * from './dao-shielded-token-api';
-export * from './dao-shielded-token-cli';
-export * from './funding-shield-token-api';
-export * from './funding-shield-token-cli';
-export * from './dao-voting-api';
-export * from './dao-voting-cli';
 
 // Re-export specific functions to avoid conflicts
 export { runDaoShieldedTokenCli } from './dao-shielded-token-cli';
 export { runFundingShieldTokenCli } from './funding-shield-token-cli';
 export { runDaoVotingCli } from './dao-voting-cli';
+
+// Export API functions without setLogger conflicts
+export {
+  deployDaoShieldedTokenContract,
+  mintDaoVotingTokens,
+  getDaoShieldedTokenLedgerState,
+  joinDaoShieldedTokenContract
+} from './dao-shielded-token-api';
+
+export {
+  deployFundingShieldTokenContract,
+  mintFundingTokens,
+  getFundingShieldTokenLedgerState,
+  joinFundingShieldTokenContract
+} from './funding-shield-token-api';
+
+export {
+  deployDaoVotingContract,
+  openElection,
+  closeElection,
+  castVote,
+  fundTreasury,
+  payoutApprovedProposal,
+  getDaoVotingLedgerState,
+  joinDaoVotingContract,
+  getElectionStatus
+} from './dao-voting-api';

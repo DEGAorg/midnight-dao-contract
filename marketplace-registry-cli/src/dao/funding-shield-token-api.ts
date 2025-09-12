@@ -65,6 +65,7 @@ export const deployFundingShieldTokenContract = async (
     contract: fundingShieldTokenContractInstance,
     privateStateId: 'fundingShieldTokenPrivateState',
     initialPrivateState: privateState,
+    args: [new Uint8Array(32).fill(0)], // initNonce
   });
   logger.info(`Deployed funding shield token contract at address: ${fundingShieldTokenContract.deployTxData.public.contractAddress}`);
   return fundingShieldTokenContract;
