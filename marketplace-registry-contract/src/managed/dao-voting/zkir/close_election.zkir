@@ -86,7 +86,7 @@
     { "op": "add", "a": 14, "b": 16 },
     { "op": "constrain_bits", "var": 17, "bits": 64 },
     { "op": "copy", "var": 17 },
-    { "op": "load_imm", "imm": "0A" },
+    { "op": "load_imm", "imm": "09" },
     { "op": "declare_pub_input", "var": 6 },
     { "op": "declare_pub_input", "var": 0 },
     { "op": "declare_pub_input", "var": 0 },

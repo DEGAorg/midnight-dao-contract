@@ -8,7 +8,6 @@ export ledger no_votes: Uint<64>;
 export ledger absent_votes: Uint<64>;
 export ledger has_voted: Map<Bytes<32>, Boolean>; // one vote per pk
 export ledger treasury: QualifiedCoinInfo;
-export ledger voting_temporay_coin: QualifiedCoinInfo;
 export sealed ledger treasury_coin_color: Bytes<32>; // identifier of the coins used for treasury
 export sealed ledger dao_vote_coin_color: Bytes<32>; // identifier of the coins used for dao vote
 export ledger total_votes: Uint<64>;
@@ -81,10 +80,6 @@ export circuit cast_vote(
   }
   
   has_voted.insert(disclosedZswapPKHash, true);
-
-  // 4) Return the voting token back to the voter
-  voting_temporay_coin.writeCoin(disclose(c), right<ZswapCoinPublicKey, ContractAddress>(kernel.self()));
-  send(voting_temporay_coin, left<ZswapCoinPublicKey, ContractAddress>(zswapPK), voting_temporay_coin.value);
 }
 
 // ---------------------------
@@ -96,17 +91,19 @@ export circuit fund_treasury(fund_coin: CoinInfo): [] {
   const rc = disclose(fund_coin);
   receive(rc);
   assert(rc.color == treasury_coin_color, "wrong fund asset");
-  treasury.writeCoin(disclose(rc), right<ZswapCoinPublicKey, ContractAddress>(kernel.self()));
+  treasury.writeCoin(rc, right<ZswapCoinPublicKey, ContractAddress>(kernel.self()));
 }
 
 // Simple winner selection (admin/manual) → pay
-export circuit payout_approved_proposal(to: ZswapCoinPublicKey, amount: Uint<64>): [] {
+export circuit payout_approved_proposal(): [] {
   assert(!election_open, "close first");
-  assert(treasury.value >= amount, "insufficient");
   
   // Verify that the proposal was approved by majority vote
   assert(yes_votes > no_votes, "proposal not approved");
 
-  const disclosed_to = disclose(to);
-  send(treasury, left<ZswapCoinPublicKey, ContractAddress>(disclosed_to), treasury.value);
+  send(treasury, left<ZswapCoinPublicKey, ContractAddress>(ownPublicKey()), treasury.value);
+}
+
+export circuit cancel_payout(): [] {
+  send(treasury, left<ZswapCoinPublicKey, ContractAddress>(ownPublicKey()), treasury.value);
 }

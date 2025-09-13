@@ -23,7 +23,7 @@ import { type Wallet } from '@midnight-ntwrk/wallet-api';
 import { type DaoVotingProviders, type DeployedDaoVotingContract, type VoteType } from './common-types';
 import * as api from './dao-voting-api';
 import { createWalletAndMidnightProvider, randomBytes } from '../api';
-import { tokenType, encodeTokenType } from '@midnight-ntwrk/compact-runtime';
+import { tokenType, encodeTokenType, encodeCoinPublicKey } from '@midnight-ntwrk/compact-runtime';
 import { pad } from '../utils';
 import { levelPrivateStateProvider } from '@midnight-ntwrk/midnight-js-level-private-state-provider';
 import { indexerPublicDataProvider } from '@midnight-ntwrk/midnight-js-indexer-public-data-provider';
@@ -38,6 +38,15 @@ const createFundingCoin = (fundingTokenAddress: string): any => {
     nonce: randomBytes(32),                    // Random nonce for uniqueness
     color: encodeTokenType(tokenType(pad('dega_funding_token', 32), fundingTokenAddress)),
     value: 100n,                               // Fixed payment amount
+  };
+};
+
+// Helper function to create a DAO vote coin for casting votes
+const createDaoVoteCoin = (daoVoteTokenAddress: string): any => {
+  return {
+    nonce: randomBytes(32),                    // Random nonce for uniqueness
+    color: encodeTokenType(tokenType(pad('dega_dao_vote', 32), daoVoteTokenAddress)),
+    value: 500n,                               // Required amount for voting (500 tokens)
   };
 };
 
@@ -57,7 +66,8 @@ DAO Voting - You can do one of the following:
   5. Payout approved proposal
   6. Display current contract state
   7. Check election status
-  8. Exit
+  8. Cancel payout
+  9. Exit
 Which would you like to do? `;
 
 const join = async (providers: DaoVotingProviders, rli: Interface): Promise<DeployedDaoVotingContract> => {
@@ -125,13 +135,11 @@ const mainLoop = async (providers: DaoVotingProviders, rli: Interface): Promise<
           break;
         }
         
-        // Note: In a real implementation, you'd need to provide the actual vote coin
-        // This is a simplified version for demonstration
-        logger.info('Note: Casting vote requires providing a valid DAO voting token coin.');
-        logger.info('This is a simplified CLI - in production, you would need to select the appropriate coin.');
+        const daoVoteTokenAddress = await rli.question('Enter the DAO vote token contract address: ');
         try {
-          // await api.castVote(daoVotingContract, voteType, voteCoin);
-          logger.info(`Vote type ${voteType} selected (implementation requires coin selection)`);
+          const voteCoin = createDaoVoteCoin(daoVoteTokenAddress);
+          await api.castVote(daoVotingContract, voteType, voteCoin);
+          logger.info(`Successfully cast ${voteType === 0 ? 'YES' : voteType === 1 ? 'NO' : 'ABSENT'} vote`);
         } catch (error) {
           logger.error(`Failed to cast vote: ${error instanceof Error ? error.message : error}`);
         }
@@ -149,14 +157,9 @@ const mainLoop = async (providers: DaoVotingProviders, rli: Interface): Promise<
         break;
       }
       case '5': {
-        const toAddress = await rli.question('Enter recipient public key (hex): ');
-        const amountStr = await rli.question('Enter amount to payout: ');
-        const amount = BigInt(amountStr);
-        
         try {
-          const toBytes = new Uint8Array(Buffer.from(toAddress.replace('0x', ''), 'hex'));
-          await api.payoutApprovedProposal(daoVotingContract, toBytes, amount);
-          logger.info(`Successfully paid out ${amount} to ${toAddress}`);
+          await api.payoutApprovedProposal(daoVotingContract);
+          logger.info('Successfully paid out approved proposal to contract owner');
         } catch (error) {
           logger.error(`Failed to payout: ${error instanceof Error ? error.message : error}`);
         }
@@ -183,6 +186,15 @@ const mainLoop = async (providers: DaoVotingProviders, rli: Interface): Promise<
         break;
       }
       case '8': {
+        try {
+          await api.cancelPayout(daoVotingContract);
+          logger.info('Successfully cancelled payout');
+        } catch (error) {
+          logger.error(`Failed to cancel payout: ${error instanceof Error ? error.message : error}`);
+        }
+        break;
+      }
+      case '9': {
         logger.info('Exiting DAO voting CLI...');
         return;
       }

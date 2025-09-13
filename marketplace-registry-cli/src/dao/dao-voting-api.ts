@@ -15,6 +15,7 @@
 
 import { encodeContractAddress, type ContractAddress } from '@midnight-ntwrk/compact-runtime';
 import { DaoVoting, type DaoVotingPrivateState, witnesses } from '@midnight-ntwrk/marketplace-registry-contract';
+import { pad } from '../utils';
 import { type FinalizedTxData } from '@midnight-ntwrk/midnight-js-types';
 import { deployContract, findDeployedContract } from '@midnight-ntwrk/midnight-js-contracts';
 import { type Logger } from 'pino';
@@ -86,7 +87,7 @@ export const openElection = async (
   electionId: string,
 ): Promise<FinalizedTxData> => {
   logger.info(`Opening election with ID: ${electionId}`);
-  const electionIdBytes = new TextEncoder().encode(electionId);
+  const electionIdBytes = pad(electionId, 32);
   const finalizedTxData = await daoVotingContract.callTx.open_election(electionIdBytes);
   logger.info(`Transaction ${finalizedTxData.public.txId} added in block ${finalizedTxData.public.blockHeight}`);
   return finalizedTxData.public;
@@ -125,11 +126,18 @@ export const fundTreasury = async (
 
 export const payoutApprovedProposal = async (
   daoVotingContract: DeployedDaoVotingContract,
-  to: Uint8Array, // ZswapCoinPublicKey
-  amount: bigint,
 ): Promise<FinalizedTxData> => {
-  logger.info(`Paying out approved proposal: ${amount} to ${Buffer.from(to).toString('hex')}`);
-  const finalizedTxData = await daoVotingContract.callTx.payout_approved_proposal({ bytes: to }, amount);
+  logger.info('Paying out approved proposal to contract owner...');
+  const finalizedTxData = await daoVotingContract.callTx.payout_approved_proposal();
+  logger.info(`Transaction ${finalizedTxData.public.txId} added in block ${finalizedTxData.public.blockHeight}`);
+  return finalizedTxData.public;
+};
+
+export const cancelPayout = async (
+  daoVotingContract: DeployedDaoVotingContract,
+): Promise<FinalizedTxData> => {
+  logger.info('Cancelling payout...');
+  const finalizedTxData = await daoVotingContract.callTx.cancel_payout();
   logger.info(`Transaction ${finalizedTxData.public.txId} added in block ${finalizedTxData.public.blockHeight}`);
   return finalizedTxData.public;
 };
@@ -171,8 +179,9 @@ export const displayDaoVotingState = async (
     logger.info(`  Total Votes: ${state.total_votes}`);
     logger.info(`  Treasury Value: ${state.treasury.value}`);
     logger.info(`  Treasury Coin Color: ${Buffer.from(state.treasury.color).toString('hex')}`);
+    logger.info(`  Treasury Coin nonce: ${Buffer.from(state.treasury.nonce).toString('hex')}`);
+    logger.info(`  Treasury Coin mt_index: ${state.treasury.mt_index}`);
     logger.info(`  DAO Vote Coin Color: ${Buffer.from(state.dao_vote_coin_color).toString('hex')}`);
-    logger.info(`  Has Voted Map Size: ${state.has_voted.size}`);
   }
   return { contractAddress, state };
 };

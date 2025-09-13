@@ -14,9 +14,8 @@ export type ImpureCircuits<T> = {
                                color: Uint8Array,
                                value: bigint
                              }): __compactRuntime.CircuitResults<T, []>;
-  payout_approved_proposal(context: __compactRuntime.CircuitContext<T>,
-                           to_0: { bytes: Uint8Array },
-                           amount_0: bigint): __compactRuntime.CircuitResults<T, []>;
+  payout_approved_proposal(context: __compactRuntime.CircuitContext<T>): __compactRuntime.CircuitResults<T, []>;
+  cancel_payout(context: __compactRuntime.CircuitContext<T>): __compactRuntime.CircuitResults<T, []>;
 }
 
 export type PureCircuits = {
@@ -33,9 +32,8 @@ export type Circuits<T> = {
                                color: Uint8Array,
                                value: bigint
                              }): __compactRuntime.CircuitResults<T, []>;
-  payout_approved_proposal(context: __compactRuntime.CircuitContext<T>,
-                           to_0: { bytes: Uint8Array },
-                           amount_0: bigint): __compactRuntime.CircuitResults<T, []>;
+  payout_approved_proposal(context: __compactRuntime.CircuitContext<T>): __compactRuntime.CircuitResults<T, []>;
+  cancel_payout(context: __compactRuntime.CircuitContext<T>): __compactRuntime.CircuitResults<T, []>;
 }
 
 export type Ledger = {
@@ -56,11 +54,6 @@ export type Ledger = {
                        value: bigint,
                        mt_index: bigint
                      };
-  readonly voting_temporay_coin: { nonce: Uint8Array,
-                                   color: Uint8Array,
-                                   value: bigint,
-                                   mt_index: bigint
-                                 };
   readonly treasury_coin_color: Uint8Array;
   readonly dao_vote_coin_color: Uint8Array;
   readonly total_votes: bigint;

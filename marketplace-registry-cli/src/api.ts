@@ -393,9 +393,11 @@ export const buildWalletAndWaitForSync = async (
   const state = await Rx.firstValueFrom(wallet.state());
   logger.info(`Your wallet seed is: ${seed}`);
   logger.info(`Your wallet address is: ${state.address}`);
+  logger.info(`Your wallet coin public key is: ${state.coinPublicKey}`);
   const coinPublicKey = state.coinPublicKeyLegacy;
+  logger.info(`Your coin public key legacy is: ${coinPublicKey}`);
   const hexCoinPublicKey = parseCoinPublicKeyToHex(coinPublicKey, getLedgerNetworkId());
-  logger.info(`Your coin public key is: ${hexCoinPublicKey}`);
+  logger.info(`Your coin public key legacy is in hex: ${hexCoinPublicKey}`);
   logger.info(`Your encryption public key is: ${state.encryptionPublicKey}`);
   const balance = state.balances[nativeToken()];
   logger.info(`Your native token balance is: ${balance}`);
@@ -513,9 +515,11 @@ export const buildWalletAndWaitForFunds = async (
   const state = await Rx.firstValueFrom(wallet.state());
   logger.info(`Your wallet seed is: ${seed}`);
   logger.info(`Your wallet address is: ${state.address}`);
+  logger.info(`Your wallet coin public key is: ${state.coinPublicKey}`);
   const coinPublicKey = state.coinPublicKeyLegacy;
+  logger.info(`Your coin public key legacy is: ${coinPublicKey}`);
   const hexCoinPublicKey = parseCoinPublicKeyToHex(coinPublicKey, getLedgerNetworkId());
-  logger.info(`Your coin public key is: ${hexCoinPublicKey}`);
+  logger.info(`Your coin public key legacy is in hex: ${hexCoinPublicKey}`);
   logger.info(`Your encryption public key is: ${state.encryptionPublicKey}`);
   let balance = state.balances[nativeToken()];
   if (balance === undefined || balance === 0n) {
