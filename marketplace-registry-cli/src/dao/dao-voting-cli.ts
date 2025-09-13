@@ -22,13 +22,24 @@ import { type Resource } from '@midnight-ntwrk/wallet';
 import { type Wallet } from '@midnight-ntwrk/wallet-api';
 import { type DaoVotingProviders, type DeployedDaoVotingContract, type VoteType } from './common-types';
 import * as api from './dao-voting-api';
-import { createWalletAndMidnightProvider } from '../api';
+import { createWalletAndMidnightProvider, randomBytes } from '../api';
+import { tokenType, encodeTokenType } from '@midnight-ntwrk/compact-runtime';
+import { pad } from '../utils';
 import { levelPrivateStateProvider } from '@midnight-ntwrk/midnight-js-level-private-state-provider';
 import { indexerPublicDataProvider } from '@midnight-ntwrk/midnight-js-indexer-public-data-provider';
 import { NodeZkConfigProvider } from '@midnight-ntwrk/midnight-js-node-zk-config-provider';
 import { httpClientProofProvider } from '@midnight-ntwrk/midnight-js-http-client-proof-provider';
 
 let logger: Logger;
+
+// Helper function to create a funding coin for treasury funding
+const createFundingCoin = (fundingTokenAddress: string): any => {
+  return {
+    nonce: randomBytes(32),                    // Random nonce for uniqueness
+    color: encodeTokenType(tokenType(pad('dega_funding_token', 32), fundingTokenAddress)),
+    value: 100n,                               // Fixed payment amount
+  };
+};
 
 const DEPLOY_OR_JOIN_QUESTION = `
 DAO Voting - You can do one of the following:
@@ -127,12 +138,11 @@ const mainLoop = async (providers: DaoVotingProviders, rli: Interface): Promise<
         break;
       }
       case '4': {
-        // Note: In a real implementation, you'd need to provide the actual funding coin
-        logger.info('Note: Funding treasury requires providing funding tokens.');
-        logger.info('This is a simplified CLI - in production, you would need to select the appropriate coin.');
+        const fundingTokenAddress = await rli.question('Enter the funding token contract address: ');
         try {
-          // await api.fundTreasury(daoVotingContract, fundCoin);
-          logger.info('Treasury funding selected (implementation requires coin selection)');
+          const fundCoin = createFundingCoin(fundingTokenAddress);
+          await api.fundTreasury(daoVotingContract, fundCoin);
+          logger.info('Successfully funded treasury');
         } catch (error) {
           logger.error(`Failed to fund treasury: ${error instanceof Error ? error.message : error}`);
         }
