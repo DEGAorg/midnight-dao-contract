@@ -14,7 +14,7 @@
 // limitations under the License.
 
 import { encodeContractAddress, type ContractAddress } from '@midnight-ntwrk/compact-runtime';
-import { DaoVoting, type DaoVotingPrivateState, witnesses } from '@midnight-ntwrk/marketplace-registry-contract';
+import { DaoVoting, type DaoVotingPrivateState, witnesses } from 'midnight-workshop-dao-contracts';
 import { pad } from '../utils';
 import { type FinalizedTxData } from '@midnight-ntwrk/midnight-js-types';
 import { deployContract, findDeployedContract } from '@midnight-ntwrk/midnight-js-contracts';

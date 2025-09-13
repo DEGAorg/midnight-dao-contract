@@ -1,11 +1,11 @@
 {
-  "name": "marketplace-registry",
+  "name": "midnight-workshop-dao",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "workspaces": [
-    "marketplace-registry-cli",
-    "marketplace-registry-contract"
+    "cli",
+    "contracts"
   ],
   "devDependencies": {
     "@eslint/js": "^9.28.0",

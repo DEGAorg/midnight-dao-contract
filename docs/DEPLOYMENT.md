@@ -50,7 +50,7 @@ npm run deploy-contract
 
 ### Using .env File
 
-Create a `.env` file in the `marketplace-registry-cli` directory:
+Create a `.env` file in the `cli` directory:
 
 ```env
 DEPLOY_WALLET_SEED=your-wallet-seed-here
@@ -144,7 +144,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: deployment-output
-        path: marketplace-registry-cli/src/deployment-output.json
+        path: cli/src/deployment-output.json
 ```
 
 ### GitLab CI Example
@@ -163,7 +163,7 @@ deploy_contract:
     REGISTER_DEPLOYER: "true"
   artifacts:
     paths:
-      - marketplace-registry-cli/src/deployment-output.json
+      - cli/src/deployment-output.json
     expire_in: 1 week
 ```
 

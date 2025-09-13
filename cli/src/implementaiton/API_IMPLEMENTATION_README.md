@@ -87,7 +87,7 @@ if (state.registry) {
 
 2. **Install dependencies** (if not already present):
    ```bash
-   npm install @midnight-ntwrk/marketplace-registry-contract
+   npm install midnight-workshop-dao-contracts
    npm install @midnight-ntwrk/midnight-js-contracts@2.0.1
    npm install @midnight-ntwrk/midnight-js-http-client-proof-provider@2.0.1
    npm install @midnight-ntwrk/midnight-js-indexer-public-data-provider@2.0.1

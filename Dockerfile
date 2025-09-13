@@ -33,8 +33,8 @@ ENV COMPACT_HOME="/usr/local/compactc"
 
 # Copy package files for workspaces
 COPY package*.json ./
-COPY marketplace-registry-contract/package*.json ./marketplace-registry-contract/
-COPY marketplace-registry-cli/package*.json ./marketplace-registry-cli/
+COPY contracts/package*.json ./contracts/
+COPY cli/package*.json ./cli/
 
 # Install dependencies using workspaces
 RUN npm ci
@@ -46,4 +46,4 @@ COPY . .
 RUN compactc --version
 
 # Default command to run tests by changing to the correct directory
-CMD ["sh", "-c", "cd marketplace-registry-contract && npm run test:compile"]
+CMD ["sh", "-c", "cd contracts && npm run test:compile"]

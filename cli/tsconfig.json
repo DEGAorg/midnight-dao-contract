@@ -19,7 +19,7 @@
     "skipLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@contract/*": ["../../marketplace-registry-contract/src/*"]
+      "@contract/*": ["../../contracts/src/*"]
     }
   }
 }

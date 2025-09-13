@@ -1,4 +1,4 @@
-# Marketplace Registry DApp
+# Midnight Workshop DAO
 
 [![Generic badge](https://img.shields.io/badge/Compact%20Compiler-0.24.0-1abc9c.svg)](https://shields.io/)  
 [![Generic badge](https://img.shields.io/badge/TypeScript-5.8.3-blue.svg)](https://shields.io/)
@@ -17,8 +17,8 @@
    ```
 
 5. Run `npm install` in the root folder to install all the necessary packages.
-6. Compile and build the code in the `marketplace-registry-contract` folder before running the code in the `marketplace-registry-cli` folder.  
-   In the `marketplace-registry-contract` folder, run this command:
+6. Compile and build the code in the `contracts` folder before running the code in the `cli` folder.  
+   In the `contracts` folder, run this command:
 
    ```sh
    npm run compact && npm run build
@@ -26,7 +26,7 @@
 
    Follow the instructions in the documentation [to install and launch the proof server](https://docs.midnight.network/develop/tutorial/using/proof-server).
 
-7. Switch to the `marketplace-registry-cli` folder and run this command:
+7. Switch to the `cli` folder and run this command:
 
    ```sh
    npm run start-testnet-remote
@@ -34,12 +34,12 @@
 
    If you do not have a wallet yet, you will be given the option to create a new one. After getting your address, you can use the [official faucet](https://faucet.testnet-02.midnight.network/) to request coins to deploy a contract on testnet and interact with it.
 
-## The marketplace registry contract
+## The DAO contracts
 
-The [marketplace-registry-contract](marketplace-registry-contract) subdirectory contains:
+The [contracts](contracts) subdirectory contains:
 
-- the [smart contract](marketplace-registry-contract/src/marketplace-registry.compact)
-- some [unit tests](marketplace-registry-contract/src/test/marketplace-registry.test.ts) to test the smart contract
+- the [smart contracts](contracts/src/marketplace-registry.compact)
+- some [unit tests](contracts/src/test/marketplace-registry.test.ts) to test the smart contracts
 
 ### The source code
 
@@ -58,10 +58,10 @@ export circuit register(): [] {
 ```
 
 To verify that the smart contract operates as expected,
-we've provided some unit tests in `marketplace-registry-contract/src/test/marketplace-registry.test.ts`.
+we've provided some unit tests in `contracts/src/test/marketplace-registry.test.ts`.
 
 We've also provided tests that use a simple simulator, which illustrates
-how to initialize and call the smart contract code locally without running a node in `marketplace-registry-contract/src/test/marketplace-registry-simulator.ts`
+how to initialize and call the smart contract code locally without running a node in `contracts/src/test/marketplace-registry-simulator.ts`
 
 ### Building the smart contract
 
@@ -80,7 +80,7 @@ You should see the following output from npm and the Compact compiler:
 Compactc version: 0.23.0
 ```
 
-The compiler will complete very quickly because we've instructed it to skip ZK key generation with the option `--skip-zk`. The compiler's output files will be placed in the directory `marketplace-registry-contract/src/managed/marketplace-registry`.
+The compiler will complete very quickly because we've instructed it to skip ZK key generation with the option `--skip-zk`. The compiler's output files will be placed in the directory `contracts/src/managed/marketplace-registry`.
 
 Build the TypeScript source files:
 
@@ -88,7 +88,7 @@ Build the TypeScript source files:
 npm run build
 ```
 
-This creates the `marketplace-registry-contract/dist` directory.
+This creates the `contracts/dist` directory.
 
 Start unit tests:
 
@@ -120,14 +120,14 @@ The Docker container will:
 - Run all unit tests
 - Generate test reports
 
-The Docker setup is equivalent to running `npm run test:compile` in the `marketplace-registry-contract` directory but provides a consistent, isolated environment regardless of your local system configuration.
+The Docker setup is equivalent to running `npm run test:compile` in the `contracts` directory but provides a consistent, isolated environment regardless of your local system configuration.
 
 ## CLI
 
-After building the smart contract you can deploy it using the project in the subdirectory `marketplace-registry-cli`:
+After building the smart contracts you can deploy them using the project in the subdirectory `cli`:
 
 ```sh
-cd ../marketplace-registry-cli
+cd ../cli
 ```
 
 Build from source code:
@@ -216,11 +216,11 @@ These tests are completely safe to run as they **do not**:
 
 ## On-Chain Integration Tests
 
-The [marketplace-registry-cli](marketplace-registry-cli) subdirectory also contains comprehensive on-chain integration tests that validate the marketplace registry contract functionality in a real blockchain environment.
+The [cli](cli) subdirectory also contains comprehensive on-chain integration tests that validate the DAO contract functionality in a real blockchain environment.
 
 ### Test Setup
 
-The integration tests are located in `marketplace-registry-cli/src/test-setup.ts` and provide automated setup for testing various scenarios:
+The integration tests are located in `cli/src/test-setup.ts` and provide automated setup for testing various scenarios:
 
 - **Contract Deployment**: Automatically deploys the marketplace registry contract to testnet
 - **Wallet Management**: Creates and funds multiple test wallets with different registration states
@@ -229,7 +229,7 @@ The integration tests are located in `marketplace-registry-cli/src/test-setup.ts
 
 ### Environment Configuration
 
-Before running the integration tests, you need to set up environment variables in a `.env` file in the `marketplace-registry-cli` directory:
+Before running the integration tests, you need to set up environment variables in a `.env` file in the `cli` directory:
 
 ```sh
 FUND_WALLET_SEED=your_fund_wallet_seed
@@ -244,7 +244,7 @@ REGISTRATION_EMAIL=test@example.com
 To run the integration test setup:
 
 ```sh
-cd marketplace-registry-cli
+cd cli
 npm run build
 node dist/test-setup.js
 ```

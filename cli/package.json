@@ -1,5 +1,5 @@
 {
-  "name": "@midnight-ntwrk/marketplace-registry-cli",
+  "name": "midnight-workshop-dao-cli",
   "version": "0.1.0",
   "license": "Apache-2.0",
   "private": true,
@@ -20,7 +20,7 @@
     "start-testnet-remote-ps": "npm run build && npm run testnet-remote-ps"
   },
   "dependencies": {
-    "@midnight-ntwrk/marketplace-registry-contract": "*"
+    "midnight-workshop-dao-contracts": "*"
   },
   "devDependencies": {
     "@types/node": "^24.3.1",
