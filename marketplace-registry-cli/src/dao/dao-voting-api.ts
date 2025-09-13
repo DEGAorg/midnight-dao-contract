@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { type ContractAddress } from '@midnight-ntwrk/compact-runtime';
+import { encodeContractAddress, type ContractAddress } from '@midnight-ntwrk/compact-runtime';
 import { DaoVoting, type DaoVotingPrivateState, witnesses } from '@midnight-ntwrk/marketplace-registry-contract';
 import { type FinalizedTxData } from '@midnight-ntwrk/midnight-js-types';
 import { deployContract, findDeployedContract } from '@midnight-ntwrk/midnight-js-contracts';
@@ -65,13 +65,16 @@ export const deployDaoVotingContract = async (
   daoVoteTokenAddress: string,
 ): Promise<DeployedDaoVotingContract> => {
   logger.info('Deploying DAO voting contract...');
+  // const fundingTokenAddressBytes = new Uint8Array(Buffer.from(fundingTokenAddress.replace('0x', ''), 'hex'));
+  const fundingTokenAddressBytes = encodeContractAddress(fundingTokenAddress);
+  const daoVoteTokenAddressBytes = encodeContractAddress(daoVoteTokenAddress);
   const daoVotingContract = await deployContract(providers, {
     contract: daoVotingContractInstance,
     privateStateId: 'daoVotingPrivateState',
     initialPrivateState: privateState,
     args: [
-      { bytes: new Uint8Array(Buffer.from(fundingTokenAddress.replace('0x', ''), 'hex')) }, // fundingTokenAddress
-      { bytes: new Uint8Array(Buffer.from(daoVoteTokenAddress.replace('0x', ''), 'hex')) }, // daoVoteTokenAddress
+      { bytes: fundingTokenAddressBytes },
+      { bytes: daoVoteTokenAddressBytes },
     ],
   });
   logger.info(`Deployed DAO voting contract at address: ${daoVotingContract.deployTxData.public.contractAddress}`);
