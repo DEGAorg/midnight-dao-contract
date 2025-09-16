@@ -125,7 +125,7 @@ export const runFundingShieldTokenCli = async (
         privateStateStoreName: 'fundingShieldTokenPrivateState',
       }),
       publicDataProvider: indexerPublicDataProvider(config.indexer, config.indexerWS),
-      zkConfigProvider: new NodeZkConfigProvider<'mint'>(path.resolve(path.resolve(new URL(import.meta.url).pathname, '..'), '..', '..', '..', 'marketplace-registry-contract', 'src', 'managed', 'funding-shield-token')),
+      zkConfigProvider: new NodeZkConfigProvider<'mint'>(path.resolve(path.resolve(new URL(import.meta.url).pathname, '..'), '..', '..', '..', 'contracts', 'src', 'managed', 'funding-shield-token')),
       proofProvider: httpClientProofProvider(config.proofServer),
       walletProvider: walletAndMidnightProvider,
       midnightProvider: walletAndMidnightProvider,

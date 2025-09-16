@@ -96,11 +96,9 @@ export circuit fund_treasury(fund_coin: CoinInfo): [] {
 
 // Simple winner selection (admin/manual) → pay
 export circuit payout_approved_proposal(): [] {
-  assert(!election_open, "close first");
-  
   // Verify that the proposal was approved by majority vote
-  assert(yes_votes > no_votes, "proposal not approved");
-
+  assert(!election_open, "close first");
+  assert(no_votes < yes_votes, "proposal not approved");
   send(treasury, left<ZswapCoinPublicKey, ContractAddress>(ownPublicKey()), treasury.value);
 }
 

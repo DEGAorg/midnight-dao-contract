@@ -36,7 +36,7 @@ export const marketplaceRegistryContractInstance: MarketplaceRegistryContract = 
 // Configuration constants
 const CONTRACT_CONFIG = {
   privateStateStoreName: 'marketplace-registry-private-state',
-  zkConfigPath: './marketplace-registry-contract/src/managed/marketplace-registry/zkir',
+  zkConfigPath: './contracts/src/managed/marketplace-registry/zkir',
 } as const;
 
 /**

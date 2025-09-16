@@ -17,7 +17,7 @@
   },
   "scripts": {
     "compact-dao-token": "compactc src/dao-shielded-token.compact src/managed/dao-shielded-token",
-    "compact-dao-voting": "compactc src/dao-voting.compact src/managed/dao-voting",
+    "compact-dao-voting": "rm -rf src/managed/dao-voting && compactc src/dao-voting.compact src/managed/dao-voting",
     "compact-funding-token": "compactc src/funding-shield-token.compact src/managed/funding-shield-token",
     "compact": "compactc src/marketplace-registry.compact src/managed/marketplace-registry",
     "test": "vitest run",

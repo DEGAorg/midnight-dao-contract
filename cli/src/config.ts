@@ -19,7 +19,7 @@ export const currentDir = path.resolve(new URL(import.meta.url).pathname, '..');
 
 export const contractConfig = {
   privateStateStoreName: 'marketplace-registry-private-state',
-  zkConfigPath: path.resolve(currentDir, '..', '..', 'marketplace-registry-contract', 'src', 'managed', 'marketplace-registry'),
+  zkConfigPath: path.resolve(currentDir, '..', '..', 'contracts', 'src', 'managed', 'marketplace-registry'),
 };
 
 export interface Config {

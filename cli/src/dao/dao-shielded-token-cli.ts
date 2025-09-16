@@ -159,7 +159,7 @@ export const runDaoShieldedTokenCli = async (
         privateStateStoreName: 'daoShieldedTokenPrivateState',
       }),
       publicDataProvider: indexerPublicDataProvider(config.indexer, config.indexerWS),
-      zkConfigProvider: new NodeZkConfigProvider<'mint'>(path.resolve(path.resolve(new URL(import.meta.url).pathname, '..'), '..', '..', '..', 'marketplace-registry-contract', 'src', 'managed', 'dao-shielded-token')),
+      zkConfigProvider: new NodeZkConfigProvider<'mint'>(path.resolve(path.resolve(new URL(import.meta.url).pathname, '..'), '..', '..', '..', 'contracts', 'src', 'managed', 'dao-shielded-token')),
       proofProvider: httpClientProofProvider(config.proofServer),
       walletProvider: walletAndMidnightProvider,
       midnightProvider: walletAndMidnightProvider,
