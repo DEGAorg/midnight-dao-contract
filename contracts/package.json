@@ -19,10 +19,10 @@
     "compact-dao-token": "compactc src/dao-shielded-token.compact src/managed/dao-shielded-token",
     "compact-dao-voting": "rm -rf src/managed/dao-voting && compactc src/dao-voting.compact src/managed/dao-voting",
     "compact-funding-token": "compactc src/funding-shield-token.compact src/managed/funding-shield-token",
-    "compact": "compactc src/marketplace-registry.compact src/managed/marketplace-registry",
+    "compact": "npm run compact-dao-token && npm run compact-dao-voting && npm run compact-funding-token",
     "test": "vitest run",
     "test:compile": "npm run compact && vitest run",
-    "build": "rm -rf dist && tsc --project tsconfig.build.json && cp -Rf ./src/managed ./dist/managed && cp ./src/marketplace-registry.compact ./dist",
+    "build": "rm -rf dist && tsc --project tsconfig.build.json && cp -Rf ./src/managed ./dist/managed",
     "lint": "eslint src",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   }
